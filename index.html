@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the scene index: made by starbound</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap');
+
+        :root {
+            --light-yellow: #fffbeB;
+            --light-orange: #ffedd5;
+            --dark-orange: #fb923c;
+            --text-color: #78350f;
+            --border-color: #fed7aa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'nunito', sans-serif;
+            background-color: var(--light-yellow);
+            color: var(--text-color);
+            text-transform: lowercase;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 400;
+            font-size: 2rem;
+        }
+
+        .query-counter {
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        #search-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #search-box {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-color);
+            transition: all 0.2s ease-in-out;
+        }
+
+        #search-box:focus {
+            outline: none;
+            border-color: var(--dark-orange);
+            box-shadow: 0 0 0 3px var(--light-orange);
+        }
+
+        #search-form button {
+            border: none;
+            background-color: var(--dark-orange);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        #search-form button:hover {
+            background-color: #f97316; /* slightly darker orange */
+        }
+
+        #search-form button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        #results-container {
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .result-item {
+            background-color: var(--light-orange);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+        }
+
+        .result-item h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .result-item a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .result-item a:hover {
+            text-decoration: underline;
+        }
+
+        .result-item p {
+            margin: 0.5rem 0 0 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .result-item .link {
+            font-size: 0.8rem;
+            color: #ea580c;
+            padding-bottom: 0.5rem;
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>hey, what are you looking for?</h1>
+        <p class="query-counter">you have <span id="queries-left">100</span> searches left today.</p>
+
+        <form id="search-form">
+            <input type="text" id="search-box" placeholder="search youtube and instagram..." autocomplete="off">
+            <button type="submit" id="search-button">find it</button>
+        </form>
+
+        <div id="results-container">
+            <!-- search results will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // --- configuration removed ---
+        // your api keys are no longer stored here.
+        // they are now securely stored on the server.
+        // ---------------------------
+
+        const searchForm = document.getElementById('search-form');
+        const searchBox = document.getElementById('search-box');
+        const searchButton = document.getElementById('search-button');
+        const resultsContainer = document.getElementById('results-container');
+        const queriesLeftSpan = document.getElementById('queries-left');
+
+        const dailyQueryLimit = 100;
+
+        function getTodaysUsage() {
+            const usage = JSON.parse(localStorage.getItem('searchUsage')) || { count: 0, date: '' };
+            const today = new Date().toISOString().split('t')[0];
+
+            if (usage.date !== today) {
+                usage.count = 0;
+                usage.date = today;
+                localStorage.setItem('searchUsage', JSON.stringify(usage));
+            }
+            return usage;
+        }
+
+        function updateUsage() {
+            const usage = getTodaysUsage();
+            usage.count++;
+            localStorage.setItem('searchUsage', JSON.stringify(usage));
+            updateQueriesLeftDisplay();
+        }
+
+        function updateQueriesLeftDisplay() {
+            const usage = getTodaysUsage();
+            const queriesLeft = Math.max(0, dailyQueryLimit - usage.count);
+            queriesLeftSpan.textContent = queriesLeft;
+
+            if (queriesLeft <= 0) {
+                searchBox.disabled = true;
+                searchButton.disabled = true;
+                searchBox.placeholder = 'no searches left for today :(';
+            }
+        }
+
+        async function performSearch(query) {
+            if (!query) return;
+            updateUsage();
+            if (getTodaysUsage().count > dailyQueryLimit) {
+                return; // a final check
+            }
+
+            resultsContainer.innerHTML = '<p>searching...</p>';
+            // we now call our own secure api endpoint
+            const url = `/api/search?q=${encodeURIComponent(query)}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                resultsContainer.innerHTML = ''; // clear previous results
+
+                if (data.error) {
+                    console.error('server error:', data.error);
+                    resultsContainer.innerHTML = '<p>oops, something went wrong on the server.</p>';
+                    return;
+                }
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(item => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'result-item';
+                        resultElement.innerHTML = `
+                            <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></h3>
+                            <span class="link">${item.displayLink}</span>
+                            <p>${item.snippet}</p>
+                        `;
+                        resultsContainer.appendChild(resultElement);
+                    });
+                } else {
+                    resultsContainer.innerHTML = '<p>couldn\'t find anything for that. maybe try something else?</p>';
+                }
+            } catch (error) {
+                console.error('error fetching search results:', error);
+                resultsContainer.innerHTML = '<p>oops, something went wrong. please try again later.</p>';
+            }
+        }
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch(searchBox.value);
+        });
+
+        // initial setup on page load
+        updateQueriesLeftDisplay();
+
+    </script>
+</body>
+</html>
