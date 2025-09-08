@@ -236,6 +236,7 @@
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             performSearch(searchBox.value);
+            searchBox.value = ''; // Clear the input box after submitting
         });
 
     </script>
