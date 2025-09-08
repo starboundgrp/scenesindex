@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- adds the little icon to your browser tab -->
+    <link rel="icon" type="image/png" href="/favicon.png">
     <title>the scene index: made by starbound</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap');
@@ -140,7 +142,7 @@
 
     <div class="container">
         <h1>hey, what are you looking for?</h1>
-        <p class="query-counter">you have <span id="queries-left">100</span> searches left today.</p>
+        <p class="query-counter">powered by google custom search</p>
 
         <form id="search-form">
             <input type="text" id="search-box" placeholder="search youtube and instagram..." autocomplete="off">
@@ -162,61 +164,45 @@
         const searchBox = document.getElementById('search-box');
         const searchButton = document.getElementById('search-button');
         const resultsContainer = document.getElementById('results-container');
-        const queriesLeftSpan = document.getElementById('queries-left');
-
-        const dailyQueryLimit = 100;
-
-        function getTodaysUsage() {
-            const usage = JSON.parse(localStorage.getItem('searchUsage')) || { count: 0, date: '' };
-            const today = new Date().toISOString().split('t')[0];
-
-            if (usage.date !== today) {
-                usage.count = 0;
-                usage.date = today;
-                localStorage.setItem('searchUsage', JSON.stringify(usage));
-            }
-            return usage;
-        }
-
-        function updateUsage() {
-            const usage = getTodaysUsage();
-            usage.count++;
-            localStorage.setItem('searchUsage', JSON.stringify(usage));
-            updateQueriesLeftDisplay();
-        }
-
-        function updateQueriesLeftDisplay() {
-            const usage = getTodaysUsage();
-            const queriesLeft = Math.max(0, dailyQueryLimit - usage.count);
-            queriesLeftSpan.textContent = queriesLeft;
-
-            if (queriesLeft <= 0) {
-                searchBox.disabled = true;
-                searchButton.disabled = true;
-                searchBox.placeholder = 'no searches left for today :(';
-            }
-        }
 
         async function performSearch(query) {
             if (!query) return;
-            updateUsage();
-            if (getTodaysUsage().count > dailyQueryLimit) {
-                return; // a final check
-            }
 
+            searchButton.disabled = true;
+            searchButton.textContent = 'searching...';
             resultsContainer.innerHTML = '<p>searching...</p>';
             // we now call our own secure api endpoint
             const url = `/api/search?q=${encodeURIComponent(query)}`;
 
             try {
                 const response = await fetch(url);
+
+                // first, check if the server responded with an error code (like 404 or 500)
+                if (!response.ok) {
+                    // If the server says all API keys are used up (429 Too Many Requests)
+                    if (response.status === 429) {
+                        resultsContainer.innerHTML = `<p>oops, the daily search limit has been reached. please try again tomorrow.</p>`;
+                        searchBox.disabled = true;
+                        searchBox.placeholder = 'no searches left for today :(';
+                        return;
+                    }
+                    // Try to read the error message from the server's JSON response
+                    const errorData = await response.json().catch(() => null); // Use .catch in case the body isn't valid JSON
+                    if (errorData && errorData.error) {
+                        resultsContainer.innerHTML = `<p>oops, the server had an issue: ${errorData.error}</p>`;
+                    } else {
+                        resultsContainer.innerHTML = `<p>oops, the server responded with an error (${response.status}). please check the vercel function logs for more details.</p>`;
+                    }
+                    return;
+                }
+
                 const data = await response.json();
 
                 resultsContainer.innerHTML = ''; // clear previous results
 
                 if (data.error) {
-                    console.error('server error:', data.error);
-                    resultsContainer.innerHTML = '<p>oops, something went wrong on the server.</p>';
+                    console.error('google api error:', data.error);
+                    resultsContainer.innerHTML = `<p>oops, the api returned an error: ${data.error.message}</p>`;
                     return;
                 }
                 if (data.items && data.items.length > 0) {
@@ -235,7 +221,15 @@
                 }
             } catch (error) {
                 console.error('error fetching search results:', error);
-                resultsContainer.innerHTML = '<p>oops, something went wrong. please try again later.</p>';
+                if (error instanceof SyntaxError) {
+                    resultsContainer.innerHTML = '<p>oops, the server sent back an unexpected response that wasn\'t json. check the vercel logs.</p>';
+                } else {
+                    resultsContainer.innerHTML = '<p>could not connect to the server. please check your connection and try again.</p>';
+                }
+            } finally {
+                // this runs whether the search succeeds or fails
+                searchButton.disabled = false;
+                searchButton.textContent = 'find it';
             }
         }
 
@@ -243,9 +237,6 @@
             e.preventDefault();
             performSearch(searchBox.value);
         });
-
-        // initial setup on page load
-        updateQueriesLeftDisplay();
 
     </script>
 </body>
