@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- adds the little icon to your browser tab -->
     <link rel="icon" type="image/png" href="/favicon.png">
-    <title>the scene index: made by starbound</title>
+    <title>starchive scenes</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600&display=swap');
 
         :root {
-            --light-yellow: #fffbeB;
+            --light-yellow: #fffbeb;
             --light-orange: #ffedd5;
             --dark-orange: #fb923c;
             --text-color: #78350f;
             --border-color: #fed7aa;
+            --hover-orange: #f97316;
         }
 
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
@@ -26,39 +28,602 @@
             background-color: var(--light-yellow);
             color: var(--text-color);
             text-transform: lowercase;
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        header {
+            background-color: white;
+            border-bottom: 2px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(251, 146, 60, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            color: var(--text-color);
+            font-size: 1rem;
+            opacity: 0.8;
         }
 
         .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-transform: lowercase;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover {
+            color: var(--dark-orange);
+        }
+
+        .tab-btn.active {
+            color: var(--dark-orange);
+            border-bottom-color: var(--dark-orange);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container,
+        .status-container,
+        .browse-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(251, 146, 60, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        select,
+        textarea {
             width: 100%;
-            max-width: 800px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--light-yellow);
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--dark-orange);
+            box-shadow: 0 0 0 3px var(--light-orange);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            margin-top: 0.25rem;
+            opacity: 0.7;
+        }
+
+        .submit-btn,
+        .check-btn {
+            background: var(--dark-orange);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-transform: lowercase;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+
+        .submit-btn:hover:not(:disabled),
+        .check-btn:hover {
+            background: var(--hover-orange);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .codename-display {
+            background: var(--light-orange);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .codename-display h3 {
+            color: var(--dark-orange);
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .codename {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-input-group input {
+            flex: 1;
+        }
+
+        .status-result {
+            display: none;
+        }
+
+        .status-card {
+            background: var(--light-orange);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .status-title {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: var(--dark-orange);
+            color: white;
+        }
+
+        .status-approved {
+            background: #86efac;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background: #fca5a5;
+            color: #991b1b;
+        }
+
+        .status-info {
+            color: var(--text-color);
+            line-height: 1.8;
+            margin-bottom: 0.75rem;
+        }
+
+        .status-info strong {
+            font-weight: 600;
+        }
+
+        .admin-note {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--dark-orange);
+        }
+
+        .admin-note-title {
+            color: var(--dark-orange);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-submission {
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .empty-state p {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .media-card {
+            background: var(--light-orange);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .media-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.2);
+            border-color: var(--dark-orange);
+        }
+
+        .media-poster {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .placeholder-poster {
+            font-size: 3rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0.8;
+        }
+
+        .media-content {
+            padding: 1.25rem;
+        }
+
+        .media-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .media-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            flex: 1;
+        }
+
+        .media-type {
+            background: white;
+            color: var(--dark-orange);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .media-synopsis {
+            color: var(--text-color);
+            line-height: 1.5;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pack-count {
+            font-size: 0.9rem;
+            color: var(--dark-orange);
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        /* Admin Panel Styles */
+        .admin-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(251, 146, 60, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .admin-login {
+            max-width: 400px;
+            margin: 3rem auto;
             text-align: center;
         }
 
-        h1 {
-            font-weight: 400;
-            font-size: 2rem;
+        .admin-login input {
+            width: 100%;
+            margin-bottom: 1rem;
         }
 
-        .query-counter {
-            font-size: 0.9rem;
+        .admin-login button {
+            width: 100%;
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.unlocked {
+            display: block;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--light-orange);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--dark-orange);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .submission-card {
+            background: var(--light-orange);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .submission-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .submission-codename {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark-orange);
+            border: 1px solid var(--border-color);
+        }
+
+        .submission-details {
+            margin: 1rem 0;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .submission-details strong {
+            font-weight: 600;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-actions button {
+            padding: 0.5rem 1.25rem;
+            border: none;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .approve-btn {
+            background: #86efac;
+            color: #166534;
+        }
+
+        .approve-btn:hover {
+            background: #4ade80;
+        }
+
+        .reject-btn {
+            background: #fca5a5;
+            color: #991b1b;
+        }
+
+        .reject-btn:hover {
+            background: #f87171;
+        }
+
+        .view-link-btn {
+            background: var(--light-yellow);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .view-link-btn:hover {
+            background: var(--light-orange);
+        }
+
+        .admin-note-input {
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-family: inherit;
+            background: white;
+            color: var(--text-color);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: var(--light-orange);
+        }
+
+        .filter-btn.active {
+            background: var(--dark-orange);
+            color: white;
+            border-color: var(--dark-orange);
+        }
+
+        /* Search Tab Styles */
+        .search-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(251, 146, 60, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         #search-form {
             display: flex;
             gap: 0.5rem;
+            margin-bottom: 2rem;
         }
 
         #search-box {
             flex-grow: 1;
             border: 1px solid var(--border-color);
-            background-color: white;
+            background-color: var(--light-yellow);
             padding: 0.75rem 1rem;
             border-radius: 2rem;
             font-family: inherit;
@@ -87,7 +652,7 @@
         }
 
         #search-form button:hover {
-            background-color: #f97316; /* slightly darker orange */
+            background-color: var(--hover-orange);
         }
 
         #search-form button:disabled {
@@ -96,8 +661,7 @@
         }
 
         #results-container {
-            margin-top: 3rem;
-            text-align: left;
+            margin-top: 2rem;
         }
 
         .result-item {
@@ -143,7 +707,7 @@
             border-radius: 50%;
             border-left-color: var(--dark-orange);
             animation: spin 1s ease infinite;
-            margin: 3rem auto; /* Center it */
+            margin: 3rem auto;
         }
 
         @keyframes spin {
@@ -154,30 +718,446 @@
                 transform: rotate(360deg);
             }
         }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container,
+            .status-container,
+            .browse-container {
+                padding: 1.5rem;
+            }
+
+            .status-input-group {
+                flex-direction: column;
+            }
+
+            .check-btn {
+                width: 100%;
+            }
+
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .media-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>starchive scenes</h1>
+        <p class="subtitle">community-driven scene pack archive</p>
+    </header>
 
     <div class="container">
-        <h1>hey, what are you looking for?</h1>
-        <p class="query-counter">powered by google custom search</p>
-
-        <form id="search-form">
-            <input type="text" id="search-box" placeholder="search youtube and instagram..." autocomplete="off">
-            <button type="submit" id="search-button">find it</button>
-        </form>
-
-        <div id="results-container">
-            <!-- search results will appear here -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('browse')">browse packs</button>
+            <button class="tab-btn" onclick="switchTab('search')">search scenes</button>
+            <button class="tab-btn" onclick="switchTab('submit')">submit pack</button>
+            <button class="tab-btn" onclick="switchTab('status')">check status</button>
+            <button class="tab-btn" onclick="switchTab('admin')">admin</button>
         </div>
+
+        <!-- Browse Tab -->
+        <div id="browseTab" class="tab-content active">
+            <div class="browse-container">
+                <h2>available scene packs</h2>
+                <div id="mediaGrid" class="media-grid">
+                    <div class="empty-state">
+                        <p>no scene packs available yet</p>
+                        <p>be the first to contribute!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="searchTab" class="tab-content">
+            <div class="search-container">
+                <h2>search for scenes</h2>
+                <p style="opacity: 0.8; margin-bottom: 1.5rem;">powered by google custom search</p>
+
+                <form id="search-form">
+                    <input type="text" id="search-box" placeholder="search youtube and instagram..." autocomplete="off">
+                    <button type="submit" id="search-button">find it</button>
+                </form>
+
+                <div id="results-container">
+                    <!-- search results will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Tab -->
+        <div id="submitTab" class="tab-content">
+            <div class="form-container">
+                <h2>submit a scene pack</h2>
+                <form id="submissionForm" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label>media title *</label>
+                        <input type="text" id="mediaTitle" required placeholder="e.g., breaking bad, the godfather">
+                    </div>
+
+                    <div class="form-group">
+                        <label>media type *</label>
+                        <select id="mediaType" required>
+                            <option value="">select type...</option>
+                            <option value="show">tv series</option>
+                            <option value="movie">movie</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>synopsis *</label>
+                        <textarea id="synopsis" required placeholder="brief description of the show or movie"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>pack name *</label>
+                        <input type="text" id="packName" required placeholder="e.g., complete series 1080p, season 1 4k">
+                    </div>
+
+                    <div class="form-group">
+                        <label>quality *</label>
+                        <select id="quality" required>
+                            <option value="">select quality...</option>
+                            <option value="4K UHD">4k uhd</option>
+                            <option value="1080p">1080p</option>
+                            <option value="720p">720p</option>
+                            <option value="Other">other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>total size *</label>
+                        <input type="text" id="packSize" required placeholder="e.g., 42.3 gb">
+                        <div class="helper-text">approximate total size of the scene pack</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>download link *</label>
+                        <input type="url" id="downloadLink" required placeholder="https://...">
+                        <div class="helper-text">mega, google drive, mediafire, or other file hosting links</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>additional notes (optional)</label>
+                        <textarea id="notes" placeholder="any additional information about the pack, special features, etc."></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-btn">submit for review</button>
+                </form>
+
+                <div id="codenameDisplay" class="codename-display" style="display: none;">
+                    <h3>submission successful!</h3>
+                    <p style="opacity: 0.8; margin: 0.5rem 0;">your tracking codename:</p>
+                    <div class="codename" id="generatedCodename"></div>
+                    <p style="opacity: 0.8; font-size: 0.95rem;">save this codename to check your submission status. review typically takes 24-48 hours.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Tab -->
+        <div id="statusTab" class="tab-content">
+            <div class="status-container">
+                <h2>check submission status</h2>
+                <div class="status-input-group">
+                    <input type="text" id="codenameInput" placeholder="enter your codename (e.g., PHOENIX-7284)">
+                    <button class="check-btn" onclick="checkStatus()">check status</button>
+                </div>
+
+                <div id="statusResult" class="status-result"></div>
+            </div>
+        </div>
+
+        <!-- Admin Tab -->
+        <div id="adminTab" class="tab-content">
+            <div class="admin-container">
+                <div class="admin-login" id="adminLogin">
+                    <h2>admin login</h2>
+                    <p style="opacity: 0.8; margin-bottom: 1.5rem;">enter password to access admin panel</p>
+                    <input type="password" id="adminPassword" placeholder="password">
+                    <button class="submit-btn" onclick="adminLogin()">login</button>
+                    <p id="loginError" style="color: #991b1b; margin-top: 1rem; display: none;">incorrect password</p>
+                </div>
+
+                <div class="admin-content" id="adminContent">
+                    <h2>admin panel</h2>
+                    
+                    <div class="admin-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="pendingCount">0</div>
+                            <div class="stat-label">pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="approvedCount">0</div>
+                            <div class="stat-label">approved</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="rejectedCount">0</div>
+                            <div class="stat-label">rejected</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" onclick="filterSubmissions('all')">all</button>
+                        <button class="filter-btn" onclick="filterSubmissions('pending')">pending</button>
+                        <button class="filter-btn" onclick="filterSubmissions('approved')">approved</button>
+                        <button class="filter-btn" onclick="filterSubmissions('rejected')">rejected</button>
+                    </div>
+
+                    <div id="submissionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>starchive scenes © 2024 | all scene packs are user-contributed</p>
+        </footer>
     </div>
 
     <script>
-        // --- configuration removed ---
-        // your api keys are no longer stored here.
-        // they are now securely stored on the server.
-        // ---------------------------
+        const submissions = {};
+        const mediaLibrary = [];
+        let isAdminLoggedIn = false;
+        let adminFilter = 'all';
+        const ADMIN_PASSWORD = 'iheartstarchiveindez'; // Change this to your desired password
 
+        function generateCodename() {
+            const adjectives = ['PHOENIX', 'DRAGON', 'FALCON', 'TIGER', 'EAGLE', 'WOLF', 'HAWK', 'LION', 'RAVEN', 'COBRA'];
+            const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            return `${randomAdj}-${randomNum}`;
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'browse') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('browseTab').classList.add('active');
+                renderMediaGrid();
+            } else if (tab === 'search') {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('searchTab').classList.add('active');
+            } else if (tab === 'submit') {
+                document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+                document.getElementById('submitTab').classList.add('active');
+            } else if (tab === 'status') {
+                document.querySelector('.tab-btn:nth-child(4)').classList.add('active');
+                document.getElementById('statusTab').classList.add('active');
+            } else if (tab === 'admin') {
+                document.querySelector('.tab-btn:nth-child(5)').classList.add('active');
+                document.getElementById('adminTab').classList.add('active');
+                if (isAdminLoggedIn) {
+                    renderAdminPanel();
+                }
+            }
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const codename = generateCodename();
+            const formData = {
+                mediaTitle: document.getElementById('mediaTitle').value,
+                mediaType: document.getElementById('mediaType').value,
+                synopsis: document.getElementById('synopsis').value,
+                packName: document.getElementById('packName').value,
+                quality: document.getElementById('quality').value,
+                packSize: document.getElementById('packSize').value,
+                downloadLink: document.getElementById('downloadLink').value,
+                notes: document.getElementById('notes').value,
+                status: 'pending',
+                submittedDate: new Date().toLocaleDateString(),
+                adminNote: null
+            };
+
+            submissions[codename] = formData;
+
+            // Add to media library (simulating approval for demo)
+            setTimeout(() => {
+                const existingMedia = mediaLibrary.find(m => m.title.toLowerCase() === formData.mediaTitle.toLowerCase());
+                if (existingMedia) {
+                    existingMedia.packs.push({
+                        name: formData.packName,
+                        size: formData.packSize,
+                        quality: formData.quality,
+                        link: formData.downloadLink
+                    });
+                } else {
+                    mediaLibrary.push({
+                        title: formData.mediaTitle,
+                        type: formData.mediaType,
+                        synopsis: formData.synopsis,
+                        packs: [{
+                            name: formData.packName,
+                            size: formData.packSize,
+                            quality: formData.quality,
+                            link: formData.downloadLink
+                        }]
+                    });
+                }
+                renderMediaGrid();
+            }, 100);
+
+            document.getElementById('submissionForm').reset();
+            document.getElementById('generatedCodename').textContent = codename;
+            document.getElementById('codenameDisplay').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('codenameDisplay').style.display = 'none';
+            }, 30000);
+        }
+
+        function checkStatus() {
+            const codename = document.getElementById('codenameInput').value.trim().toUpperCase();
+            const resultDiv = document.getElementById('statusResult');
+
+            if (!codename) {
+                resultDiv.innerHTML = '<div class="no-submission">please enter a codename</div>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const submission = submissions[codename];
+
+            if (!submission) {
+                resultDiv.innerHTML = '<div class="no-submission">no submission found with this codename. please check your codename and try again.</div>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            let statusBadgeClass = '';
+            let statusText = '';
+
+            if (submission.status === 'pending') {
+                statusBadgeClass = 'status-pending';
+                statusText = 'pending review';
+            } else if (submission.status === 'approved') {
+                statusBadgeClass = 'status-approved';
+                statusText = 'approved';
+            } else if (submission.status === 'rejected') {
+                statusBadgeClass = 'status-rejected';
+                statusText = 'rejected';
+            }
+
+            let adminNoteHTML = '';
+            if (submission.adminNote) {
+                adminNoteHTML = `
+                    <div class="admin-note">
+                        <div class="admin-note-title">review note:</div>
+                        <div style="opacity: 0.8;">${submission.adminNote}</div>
+                    </div>
+                `;
+            }
+
+            resultDiv.innerHTML = `
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-title">${submission.mediaTitle}</div>
+                        <div class="status-badge ${statusBadgeClass}">${statusText}</div>
+                    </div>
+                    <div class="status-info">
+                        <strong>pack name:</strong> ${submission.packName}<br>
+                        <strong>quality:</strong> ${submission.quality}<br>
+                        <strong>size:</strong> ${submission.packSize}<br>
+                        <strong>submitted:</strong> ${submission.submittedDate}
+                    </div>
+                    ${adminNoteHTML}
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        function renderMediaGrid() {
+            const grid = document.getElementById('mediaGrid');
+            
+            if (mediaLibrary.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <p>no scene packs available yet</p>
+                        <p>be the first to contribute!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = '';
+            
+            mediaLibrary.forEach(media => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                
+                const packCount = media.packs.length;
+                const packText = packCount === 1 ? 'pack' : 'packs';
+                
+                card.innerHTML = `
+                    <div class="media-poster">
+                        <div class="placeholder-poster">${media.title.charAt(0).toUpperCase()}</div>
+                    </div>
+                    <div class="media-content">
+                        <div class="media-header">
+                            <div class="media-title">${media.title}</div>
+                            <div class="media-type">${media.type}</div>
+                        </div>
+                        <div class="media-synopsis">${media.synopsis}</div>
+                        <div class="pack-count">${packCount} ${packText} available</div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Demo data for testing
+        // Demo data for status checking only
+        submissions['PHOENIX-7284'] = {
+            mediaTitle: 'breaking bad',
+            mediaType: 'show',
+            packName: 'complete series 1080p',
+            quality: '1080p',
+            packSize: '42.3 gb',
+            downloadLink: 'https://example.com/link',
+            notes: 'high quality rips from bluray',
+            status: 'approved',
+            submittedDate: '10/15/2024',
+            adminNote: 'excellent quality pack. all episodes verified and working. added to the archive!'
+        };
+
+        submissions['DRAGON-5621'] = {
+            mediaTitle: 'the office',
+            mediaType: 'show',
+            packName: 'seasons 1-5 720p',
+            quality: '720p',
+            packSize: '28.7 gb',
+            downloadLink: 'https://example.com/link2',
+            notes: '',
+            status: 'pending',
+            submittedDate: '10/18/2024',
+            adminNote: null
+        };
+
+        // Initial render
+        renderMediaGrid();
+
+        // Search functionality
         const searchForm = document.getElementById('search-form');
         const searchBox = document.getElementById('search-box');
         const searchButton = document.getElementById('search-button');
@@ -189,23 +1169,21 @@
             searchButton.disabled = true;
             searchButton.textContent = 'searching...';
             resultsContainer.innerHTML = '<div class="spinner"></div>';
-            // we now call our own secure api endpoint
+            
+            // Call your API endpoint
             const url = `/api/search?q=${encodeURIComponent(query)}`;
 
             try {
                 const response = await fetch(url);
 
-                // first, check if the server responded with an error code (like 404 or 500)
                 if (!response.ok) {
-                    // If the server says all API keys are used up (429 Too Many Requests)
                     if (response.status === 429) {
                         resultsContainer.innerHTML = `<p>oops, the daily search limit has been reached. please try again tomorrow.</p>`;
                         searchBox.disabled = true;
                         searchBox.placeholder = 'no searches left for today :(';
                         return;
                     }
-                    // Try to read the error message from the server's JSON response
-                    const errorData = await response.json().catch(() => null); // Use .catch in case the body isn't valid JSON
+                    const errorData = await response.json().catch(() => null);
                     if (errorData && errorData.error) {
                         resultsContainer.innerHTML = `<p>oops, the server had an issue: ${errorData.error}</p>`;
                     } else {
@@ -215,14 +1193,14 @@
                 }
 
                 const data = await response.json();
-
-                resultsContainer.innerHTML = ''; // clear previous results
+                resultsContainer.innerHTML = '';
 
                 if (data.error) {
                     console.error('google api error:', data.error);
                     resultsContainer.innerHTML = `<p>oops, the api returned an error: ${data.error.message}</p>`;
                     return;
                 }
+                
                 if (data.items && data.items.length > 0) {
                     data.items.forEach(item => {
                         const resultElement = document.createElement('div');
@@ -245,7 +1223,6 @@
                     resultsContainer.innerHTML = '<p>could not connect to the server. please check your connection and try again.</p>';
                 }
             } finally {
-                // this runs whether the search succeeds or fails
                 searchButton.disabled = false;
                 searchButton.textContent = 'find it';
             }
@@ -254,9 +1231,180 @@
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             performSearch(searchBox.value);
-            searchBox.value = ''; // Clear the input box after submitting
+            searchBox.value = '';
         });
 
+        // Admin Panel Functions
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            const loginError = document.getElementById('loginError');
+
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').classList.add('unlocked');
+                renderAdminPanel();
+            } else {
+                loginError.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function filterSubmissions(filter) {
+            adminFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderAdminPanel();
+        }
+
+        function renderAdminPanel() {
+            const submissionsList = document.getElementById('submissionsList');
+            
+            // Calculate stats
+            const pending = Object.values(submissions).filter(s => s.status === 'pending').length;
+            const approved = Object.values(submissions).filter(s => s.status === 'approved').length;
+            const rejected = Object.values(submissions).filter(s => s.status === 'rejected').length;
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+
+            // Filter submissions
+            const filteredSubmissions = Object.entries(submissions).filter(([codename, sub]) => {
+                if (adminFilter === 'all') return true;
+                return sub.status === adminFilter;
+            });
+
+            if (filteredSubmissions.length === 0) {
+                submissionsList.innerHTML = '<div class="no-submission">no submissions found</div>';
+                return;
+            }
+
+            submissionsList.innerHTML = '';
+            
+            filteredSubmissions.forEach(([codename, sub]) => {
+                const card = document.createElement('div');
+                card.className = 'submission-card';
+                card.id = `submission-${codename}`;
+
+                let statusBadge = '';
+                if (sub.status === 'pending') {
+                    statusBadge = '<span class="status-badge status-pending">pending</span>';
+                } else if (sub.status === 'approved') {
+                    statusBadge = '<span class="status-badge status-approved">approved</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-rejected">rejected</span>';
+                }
+
+                let actionsHTML = '';
+                if (sub.status === 'pending') {
+                    actionsHTML = `
+                        <div class="admin-actions">
+                            <button class="approve-btn" onclick="approveSubmission('${codename}')">approve</button>
+                            <button class="reject-btn" onclick="showRejectInput('${codename}')">reject</button>
+                            <button class="view-link-btn" onclick="window.open('${sub.downloadLink}', '_blank')">view link</button>
+                        </div>
+                        <input type="text" id="note-${codename}" class="admin-note-input" placeholder="add admin note (optional)" style="display: none;">
+                    `;
+                }
+
+                let noteDisplay = '';
+                if (sub.adminNote) {
+                    noteDisplay = `
+                        <div class="admin-note">
+                            <div class="admin-note-title">admin note:</div>
+                            <div style="opacity: 0.8;">${sub.adminNote}</div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="submission-header">
+                        <div class="submission-title">${sub.mediaTitle}</div>
+                        <div class="submission-codename">${codename}</div>
+                    </div>
+                    ${statusBadge}
+                    <div class="submission-details">
+                        <strong>type:</strong> ${sub.mediaType}<br>
+                        <strong>synopsis:</strong> ${sub.synopsis}<br>
+                        <strong>pack name:</strong> ${sub.packName}<br>
+                        <strong>quality:</strong> ${sub.quality}<br>
+                        <strong>size:</strong> ${sub.packSize}<br>
+                        <strong>download link:</strong> <a href="${sub.downloadLink}" target="_blank" style="color: var(--dark-orange);">${sub.downloadLink}</a><br>
+                        ${sub.notes ? `<strong>notes:</strong> ${sub.notes}<br>` : ''}
+                        <strong>submitted:</strong> ${sub.submittedDate}
+                    </div>
+                    ${noteDisplay}
+                    ${actionsHTML}
+                `;
+
+                submissionsList.appendChild(card);
+            });
+        }
+
+        function showRejectInput(codename) {
+            const noteInput = document.getElementById(`note-${codename}`);
+            noteInput.style.display = 'block';
+            noteInput.placeholder = 'enter rejection reason';
+            
+            const card = document.getElementById(`submission-${codename}`);
+            const actions = card.querySelector('.admin-actions');
+            actions.innerHTML = `
+                <button class="reject-btn" onclick="rejectSubmission('${codename}')">confirm reject</button>
+                <button class="view-link-btn" onclick="renderAdminPanel()">cancel</button>
+            `;
+        }
+
+        function approveSubmission(codename) {
+            const submission = submissions[codename];
+            const noteInput = document.getElementById(`note-${codename}`);
+            const adminNote = noteInput ? noteInput.value : '';
+
+            submission.status = 'approved';
+            submission.adminNote = adminNote || 'submission approved and added to archive';
+
+            // Add to media library
+            const existingMedia = mediaLibrary.find(m => m.title.toLowerCase() === submission.mediaTitle.toLowerCase());
+            if (existingMedia) {
+                existingMedia.packs.push({
+                    name: submission.packName,
+                    size: submission.packSize,
+                    quality: submission.quality,
+                    link: submission.downloadLink
+                });
+            } else {
+                mediaLibrary.push({
+                    title: submission.mediaTitle,
+                    type: submission.mediaType,
+                    synopsis: submission.synopsis,
+                    packs: [{
+                        name: submission.packName,
+                        size: submission.packSize,
+                        quality: submission.quality,
+                        link: submission.downloadLink
+                    }]
+                });
+            }
+
+            renderAdminPanel();
+            renderMediaGrid();
+        }
+
+        function rejectSubmission(codename) {
+            const submission = submissions[codename];
+            const noteInput = document.getElementById(`note-${codename}`);
+            const rejectReason = noteInput ? noteInput.value : '';
+
+            if (!rejectReason) {
+                alert('please enter a rejection reason');
+                return;
+            }
+
+            submission.status = 'rejected';
+            submission.adminNote = rejectReason;
+
+            renderAdminPanel();
+        }
     </script>
 </body>
 </html>
